@@ -71,3 +71,34 @@ func addFKsForTeamsAndUsers(db *DB, users []handlers.User, teamName string) erro
 
 	return nil
 }
+
+func (s *DB) GetTeam(teamName string) (handlers.Team, error) {
+	const op = "Storage.GetTeam"
+
+	var name string
+	err := s.conn.QueryRow(`SELECT name FROM teams WHERE name = $1`, teamName).Scan(&name)
+	if err != nil {
+		return handlers.Team{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	rows, err := s.conn.Query(`SELECT id, username, is_active, team_name FROM users WHERE team_name = $1`, teamName)
+	if err != nil {
+		return handlers.Team{}, fmt.Errorf("%s: %w", op, err)
+	}
+	defer rows.Close()
+
+	members := make([]handlers.User, 0)
+	for rows.Next() {
+		var u handlers.User
+		if err := rows.Scan(&u.ID, &u.Username, &u.IsActive, &u.TeamName); err != nil {
+			return handlers.Team{}, fmt.Errorf("%s: %w", op, err)
+		}
+		members = append(members, u)
+	}
+
+	if err := rows.Err(); err != nil {
+		return handlers.Team{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return handlers.Team{Name: name, Members: members}, nil
+}

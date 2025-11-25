@@ -22,7 +22,7 @@ func New(log *slog.Logger, storage *storage.DB) chi.Router {
 
 	// Teams
 	r.Post("/team/add", handlers.NewAddTeam(log, storage))
-	r.Get("/team/get", handlers.TeamGet)
+	r.Get("/team/get", handlers.NewGetTeam(log, storage))
 
 	// Users
 	r.Post("/users/setIsActive", handlers.UsersSetIsActive)

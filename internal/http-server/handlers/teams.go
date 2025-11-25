@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"database/sql"
+	"errors"
 	"log/slog"
 	"net/http"
 
@@ -53,6 +55,41 @@ func NewAddTeam(log *slog.Logger, ta teamAdder) http.HandlerFunc {
 
 }
 
-func TeamGet(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+type teamGetter interface {
+	GetTeam(teamName string) (Team, error)
+}
+
+func NewGetTeam(log *slog.Logger, tg teamGetter) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "router.teams.get"
+
+		log = log.With(slog.String("op", op))
+
+		q := r.URL.Query()
+		teamName := q.Get("team_name")
+		if teamName == "" {
+			log.Warn("missing team_name query param")
+			w.WriteHeader(http.StatusBadRequest)
+			render.JSON(w, r, resp.ErrorResponse("team_name query param required", resp.CodeNotFound))
+			return
+		}
+
+		team, err := tg.GetTeam(teamName)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				log.Info("team not found", slog.String("team_name", teamName))
+				w.WriteHeader(http.StatusNotFound)
+				render.JSON(w, r, resp.ErrorResponse("team not found", resp.CodeNotFound))
+				return
+			}
+
+			log.Error("failed to get team", slog.Any("err", err))
+			w.WriteHeader(http.StatusInternalServerError)
+			render.JSON(w, r, resp.ErrorResponse("internal error", resp.CodeNotFound))
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		render.JSON(w, r, team)
+	}
 }
