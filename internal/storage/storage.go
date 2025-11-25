@@ -81,7 +81,8 @@ func (db *DB) createUsersTable() error {
 		CREATE TABLE IF NOT EXISTS users(
 			id VARCHAR(50) PRIMARY KEY,
 			username VARCHAR(50) NOT NULL UNIQUE,
-			isActive BOOLEAN NOT NULL
+			isActive BOOLEAN NOT NULL,
+			team_name VARCHAR(50)
 		);
 	`
 
@@ -104,8 +105,7 @@ func (db *DB) createTeamsTable() error {
 
 	query := `
 		CREATE TABLE IF NOT EXISTS teams(
-			id VARCHAR(50) PRIMARY KEY,
-			teamName VARCHAR(50) NOT NULL UNIQUE
+			teamName VARCHAR(50) PRIMARY KEY
 		);
 	`
 
