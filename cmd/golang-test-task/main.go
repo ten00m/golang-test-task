@@ -54,7 +54,7 @@ func main() {
 	go func() {
 		log.Info("starting http server", slog.String("addr", srv.Addr))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Error("server is not started with error", err)
+			log.Error("server is not started with error", slog.Any("error", err))
 			errorChan <- struct{}{}
 		}
 	}()
