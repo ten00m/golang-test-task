@@ -27,9 +27,9 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./config.yaml:/config.yaml:ro
+      - ./config.yaml:/app/config/config.yaml:ro
     environment:
-      - CONFIG_PATH=/config.default.yaml
+      - CONFIG_PATH=/app/config/config.yaml
     depends_on:
       db:
         condition: service_healthy
