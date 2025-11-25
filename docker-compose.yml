@@ -31,7 +31,7 @@ services:
     volumes:
       - ./config.yaml:/config.yaml:ro
     environment:
-      - CONFIG_PATH=/config.yaml
+      - CONFIG_PATH=/config.default.yaml
     depends_on:
       db:
         condition: service_healthy
