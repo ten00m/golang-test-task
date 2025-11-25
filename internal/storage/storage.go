@@ -129,9 +129,9 @@ func (db *DB) createPullRequestsTable() error {
 
 	query := `
 		CREATE TABLE IF NOT EXISTS pull_requests(
-			id SERIAL PRIMARY KEY,
-			authorId TEXT NOT NULL,
+			id TEXT PRIMARY KEY,
 			title TEXT NOT NULL,
+			authorId TEXT NOT NULL,
 			status VARCHAR(10) NOT NULL CHECK (status IN ('OPEN', 'MERGED')),
 			FOREIGN KEY (authorId) REFERENCES users(id)
 		);
@@ -185,7 +185,7 @@ func (db *DB) createPrFkReviewerTable() error {
 	query := `
 		CREATE TABLE IF NOT EXISTS pr_fk_reviewer(
 			id SERIAL PRIMARY KEY,
-			pr_id INTEGER NOT NULL,
+			pr_id TEXT NOT NULL,
 			user_id TEXT NOT NULL,
 			FOREIGN KEY (pr_id) REFERENCES pull_requests(id),
 			FOREIGN KEY (user_id) REFERENCES users(id)
