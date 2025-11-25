@@ -51,11 +51,11 @@ func New(cfg *config.PostgreSQLConfig, log *slog.Logger) (*DB, error) {
 func (db *DB) initializeTables() error {
 	const op = "Storage.initializeTables"
 
-	if err := db.createUsersTable(); err != nil {
+	if err := db.createTeamsTable(); err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	if err := db.createTeamsTable(); err != nil {
+	if err := db.createUsersTable(); err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -79,10 +79,11 @@ func (db *DB) createUsersTable() error {
 
 	query := `
 		CREATE TABLE IF NOT EXISTS users(
-			id VARCHAR(50) PRIMARY KEY,
-			username VARCHAR(50) NOT NULL UNIQUE,
-			isActive BOOLEAN NOT NULL,
-			team_name VARCHAR(50)
+			id TEXT PRIMARY KEY,
+			username TEXT NOT NULL UNIQUE,
+			is_active BOOLEAN NOT NULL,
+			team_name TEXT,
+			FOREIGN KEY (team_name) REFERENCES teams(name)
 		);
 	`
 
@@ -105,7 +106,7 @@ func (db *DB) createTeamsTable() error {
 
 	query := `
 		CREATE TABLE IF NOT EXISTS teams(
-			teamName VARCHAR(50) PRIMARY KEY
+			name TEXT PRIMARY KEY
 		);
 	`
 
@@ -128,9 +129,9 @@ func (db *DB) createPullRequestsTable() error {
 
 	query := `
 		CREATE TABLE IF NOT EXISTS pull_requests(
-			id VARCHAR(50) PRIMARY KEY,
-			authorId VARCHAR(50) NOT NULL,
-			title VARCHAR(50) NOT NULL,
+			id SERIAL PRIMARY KEY,
+			authorId TEXT NOT NULL,
+			title TEXT NOT NULL,
 			status VARCHAR(10) NOT NULL CHECK (status IN ('OPEN', 'MERGED')),
 			FOREIGN KEY (authorId) REFERENCES users(id)
 		);
@@ -155,11 +156,11 @@ func (db *DB) createTeamFkUserTable() error {
 
 	query := `
 		CREATE TABLE IF NOT EXISTS team_fk_user(
-			id VARCHAR(50) PRIMARY KEY,
-			teamId VARCHAR(50) NOT NULL,
-			userId VARCHAR(50) NOT NULL,
-			FOREIGN KEY (teamId) REFERENCES teams(id),
-			FOREIGN KEY (userId) REFERENCES users(id)
+			id SERIAL PRIMARY KEY,
+			team_name TEXT NOT NULL,
+			user_id TEXT NOT NULL,
+			FOREIGN KEY (team_name) REFERENCES teams(name),
+			FOREIGN KEY (user_id) REFERENCES users(id)
 		);
 	`
 
@@ -183,11 +184,11 @@ func (db *DB) createPrFkReviewerTable() error {
 
 	query := `
 		CREATE TABLE IF NOT EXISTS pr_fk_reviewer(
-			id VARCHAR(50) PRIMARY KEY,
-			prId VARCHAR(50) NOT NULL,
-			userId VARCHAR(50) NOT NULL,
-			FOREIGN KEY (prId) REFERENCES pull_requests(id),
-			FOREIGN KEY (userId) REFERENCES users(id)
+			id SERIAL PRIMARY KEY,
+			pr_id INTEGER NOT NULL,
+			user_id TEXT NOT NULL,
+			FOREIGN KEY (pr_id) REFERENCES pull_requests(id),
+			FOREIGN KEY (user_id) REFERENCES users(id)
 		);
 	`
 

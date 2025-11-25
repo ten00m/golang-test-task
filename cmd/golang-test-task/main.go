@@ -39,7 +39,7 @@ func main() {
 		}
 	}()
 
-	r := router.New(log)
+	r := router.New(log, db)
 
 	srv := &http.Server{
 		Addr:         cfg.HTTPServer.Address,
