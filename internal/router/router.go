@@ -25,13 +25,13 @@ func New(log *slog.Logger, storage *storage.DB) chi.Router {
 	r.Get("/team/get", handlers.NewGetTeam(log, storage))
 
 	// Users
-	r.Post("/users/setIsActive", handlers.UsersSetIsActive)
-	r.Get("/users/getReview", handlers.UsersGetReview)
+	r.Post("/users/setIsActive", handlers.NewUsersSetIsActive(log, storage))
+	r.Get("/users/getReview", handlers.NewUsersGetReview(log, storage))
 
 	// Pull Requests
-	r.Post("/pullRequest/create", handlers.PullRequestCreate)
-	r.Post("/pullRequest/merge", handlers.PullRequestMerge)
-	r.Post("/pullRequest/reassign", handlers.PullRequestReassign)
+	r.Post("/pullRequest/create", handlers.NewPullRequestCreate(log, storage))
+	r.Post("/pullRequest/merge", handlers.NewPullRequestMerge(log, storage))
+	r.Post("/pullRequest/reassign", handlers.NewPullRequestReassign(log, storage))
 
 	// Health
 	r.Get("/healthz", handlers.HealthCheck)
